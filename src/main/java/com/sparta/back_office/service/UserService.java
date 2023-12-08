@@ -1,23 +1,30 @@
 package com.sparta.back_office.service;
 import com.sparta.back_office.dto.LoginRequestDto;
 import com.sparta.back_office.dto.SignupRequestDto;
+import com.sparta.back_office.entity.PasswordChecking;
 import com.sparta.back_office.entity.User;
 import com.sparta.back_office.entity.UserRoleEnum;
 import com.sparta.back_office.jwt.JwtUtil;
+import com.sparta.back_office.repository.PasswordCheckingRepository;
 import com.sparta.back_office.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
+    private final PasswordCheckingRepository passwordCheckingRepository;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+
 
     // ADMIN_TOKEN
     private final String ADMIN_TOKEN = "AAABnvxRVklrnYxKZ0aHgTBcXukeZygoC";
@@ -60,11 +67,13 @@ public class UserService {
             }
             role = UserRoleEnum.ADMIN;
         }
-
-        // 사용자 등록
         User user = new User(username, password, email, role, intro);
+        PasswordChecking passwordChecking = new PasswordChecking(password,user);
+        // 사용자 등록
         userRepository.save(user);
+        passwordCheckingRepository.save(passwordChecking);
     }
+
 }
 
 
