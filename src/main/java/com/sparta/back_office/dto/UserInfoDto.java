@@ -1,4 +1,4 @@
-package com.sparta.back_office.entity;
+package com.sparta.back_office.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
