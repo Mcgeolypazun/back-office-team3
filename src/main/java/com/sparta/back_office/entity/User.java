@@ -2,6 +2,7 @@ package com.sparta.back_office.entity;
 
 import com.sparta.back_office.dto.ProfileRequestDto;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -32,6 +33,9 @@ public class User extends Timestamped{
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
+
+    @OneToMany(mappedBy = "users", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<Comment> commentList;
 
     public User(String username, String password, String email, UserRoleEnum role, String intro) {
         this.username = username;

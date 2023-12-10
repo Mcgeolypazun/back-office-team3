@@ -2,6 +2,7 @@ package com.sparta.back_office.post.dto;
 
 
 
+import com.sparta.back_office.dto.MsgResponseDto;
 import com.sparta.back_office.post.entity.PostEntity;
 
 import java.time.LocalDateTime;
