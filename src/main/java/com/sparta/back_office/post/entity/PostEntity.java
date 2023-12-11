@@ -1,8 +1,10 @@
 package com.sparta.back_office.post.entity;
 
+import com.sparta.back_office.entity.Comment;
 import com.sparta.back_office.post.dto.PostAddRequestDto;
 import com.sparta.back_office.post.dto.PostUpdateRequestDto;
 import jakarta.persistence.*;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,9 @@ public class PostEntity extends TimeEntity {
     @Column(nullable = false, length = 500)
     private String contents;
 
+    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    private List<Comment> commentList;
+
     public PostEntity(PostAddRequestDto requestDto) {
         this.title = requestDto.getTitle();
         this.author = requestDto.getAuthor();
@@ -32,5 +37,8 @@ public class PostEntity extends TimeEntity {
         this.title = requestDto.getTitle();
         this.author = requestDto.getAuthor();
         this.contents = requestDto.getContent();
+    }
+    public void addComment(Comment comment){
+        this.commentList.add(comment);
     }
 }
