@@ -7,11 +7,14 @@ import com.sparta.back_office.dto.ProfileResponseDto;
 import com.sparta.back_office.service.ProfileService;
 import com.sparta.back_office.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.NoSuchElementException;
 
+@Slf4j(topic = "ProfileController")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/user")
@@ -40,6 +43,10 @@ public class ProfileController {
     @PutMapping("/password/{Id}")
     public ResponseEntity<MsgResponseDto> updateUserPassword(@PathVariable Long Id,
                                                              @RequestBody PasswordUpdateRequestDto requestDto) {
+        log.info("profileService.updateUserPassword 실행");
+        log.info("Long id"+ Id);
+        log.info("Long id"+ requestDto.getNewPassword());
+
         profileService.updateUserPassword(Id, requestDto.getNewPassword());
         return ResponseEntity.ok(new MsgResponseDto("비밀번호 변경 성공하였습니다.",200));
     }
