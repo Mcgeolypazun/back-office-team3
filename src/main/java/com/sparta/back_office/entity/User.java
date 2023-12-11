@@ -35,8 +35,8 @@ public class User extends Timestamped {
     @Enumerated(value = EnumType.STRING)
     private UserRoleEnum role;
 
-    @OneToMany(mappedBy = "check_pw", cascade = CascadeType.ALL)
-    private List<PasswordChecking> passwordCheckingList;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private PasswordChecking passwordChecking;
 
 
     @Builder
