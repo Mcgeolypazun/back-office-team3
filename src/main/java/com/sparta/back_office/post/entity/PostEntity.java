@@ -40,5 +40,6 @@ public class PostEntity extends TimeEntity {
     }
     public void addComment(Comment comment){
         this.commentList.add(comment);
+        comment.setPost(this);
     }
 }

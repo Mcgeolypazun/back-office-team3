@@ -6,8 +6,10 @@ import com.sparta.back_office.dto.MessageDto;
 import com.sparta.back_office.jwt.JwtAuthorizationFilter;
 import com.sparta.back_office.jwt.JwtUtil;
 
+import com.sparta.back_office.security.UserDetailsServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +32,7 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
-
+@Slf4j(topic = "WebSecurityConfig")
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 @RequiredArgsConstructor
@@ -38,9 +40,10 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 public class WebSecurityConfig {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final JwtUtil jwtUtil;
+    private final UserDetailsServiceImpl userDetailsService;
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
     }
 
     // 기본 UserDetailsService 비활성화
@@ -85,7 +88,7 @@ public class WebSecurityConfig {
                                 antMatcher(GET, "/api/v1/posts"),
                                 antMatcher(GET, "/api/v1/post/**"),
                                 antMatcher(GET, "/api/v1/refresh**"),
-                                antMatcher(GET, "/api/v1/comment/**")
+                                antMatcher(GET, "/api/comment/**")
                         ).permitAll()
                         .anyRequest().authenticated()
         );

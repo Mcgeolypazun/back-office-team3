@@ -10,6 +10,7 @@ import com.sparta.back_office.post.service.PostService;
 import com.sparta.back_office.security.UserDetailsImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j(topic = "PostController")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/posts")
@@ -29,10 +31,13 @@ public class PostController {
         @RequestBody PostAddRequestDto requestDto,
         @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+        log.info("권한이 추가 되었는지 확인 UserDetailsImpl userDetails.getAuthorities() = " + userDetails.getAuthorities());
+        if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))|| userDetails.getAuthorities().stream().anyMatch(b -> b.getAuthority().equals("ROLE_USER"))) {
             PostResponseDto responseDto = postService.addPost(requestDto);
+            log.info("Successfully obtained User: " + userDetails.getUser().getUsername());
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
         } else {
+            log.info(" 게시물을 추가할 수 없다." );
             throw new AuthorizeException("게시물을 추가할 수 있는 권한이 없습니다.");
         }
     }

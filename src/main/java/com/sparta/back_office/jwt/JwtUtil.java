@@ -95,16 +95,28 @@ public class JwtUtil {
         throw new NullPointerException("Not Found Token");
     }
 
-    private boolean validateToken(String token) {
+    public String getJwtFromHeader(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+
+
+    boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            log.info("Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token); = "+String.valueOf(Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)));
+            log.info("token = "+ token);
             return true;
         } catch (RuntimeException e) {
             return false;
         }
     }
 
-    private Claims getCustomerClaim(String token) {
+    Claims getCustomerClaim(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key).build()
                 .parseClaimsJws(token)
@@ -148,6 +160,10 @@ public class JwtUtil {
             log.error("Error while processing JSON", ex);
             return Optional.empty();
         }
+    }
+
+    public Claims getUserInfoFromToken(String token) {
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
     }
 
 }

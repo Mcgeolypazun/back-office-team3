@@ -49,9 +49,10 @@ public class Comment {
     private PostEntity post;
 
 
-    public Comment(CommentRequestDto commentRequestDto) {
+    public Comment(CommentRequestDto commentRequestDto, PostEntity post) {
         this.text = commentRequestDto.getText();
         this.createTime = LocalDateTime.now();
+        this.post = post;
     }
     public void updateComment(String text){
         this.text = text;
