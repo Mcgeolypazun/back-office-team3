@@ -28,7 +28,6 @@ public class ProfileService {
         return new ProfileResponseDto(profileUser);
     }
 
-
     public ProfileResponseDto getProfile(Long id) {
         // 해당 ID에 대한 프로필을 찾음
         User user = findProfile(id);

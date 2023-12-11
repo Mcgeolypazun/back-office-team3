@@ -94,8 +94,9 @@ public class ProfileServiceTest extends utilTest {
         profileService.updateUserPassword(userId, newPassword3);
 
         // Then
-        assertThrows(IllegalArgumentException.class,
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> profileService.updateUserPassword(userId, newPassword4));
+        assertEquals("이전에 사용한 비밀번호는 사용할 수 없습니다.", exception.getMessage());
     }
 
 
@@ -140,3 +141,4 @@ public class ProfileServiceTest extends utilTest {
 //        assertThat(response.getId()).isNotNull();
 //        assertThat(response.getCreatedAt()).isNotNull();
 //        assertThat(response.getActivatedAt()).isNotNull();
+//assertEquals(2.5, result, () -> "연산자 혹은 분모가 0이 아닌지 확인해보세요!");
