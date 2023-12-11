@@ -1,8 +1,6 @@
 package com.sparta.back_office.controller;
 
-import com.sparta.back_office.dto.LoginRequestDto;
-import com.sparta.back_office.dto.MsgResponseDto;
-import com.sparta.back_office.dto.SignupRequestDto;
+import com.sparta.back_office.dto.*;
 import com.sparta.back_office.entity.UserRoleEnum;
 import com.sparta.back_office.jwt.JwtUtil;
 import com.sparta.back_office.service.UserService;
@@ -13,15 +11,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+import static com.sparta.back_office.jwt.JwtUtil.*;
 
 @Slf4j
 @Controller
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class UserController {
+
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
@@ -39,15 +40,46 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<MsgResponseDto> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse response) {
+    public ResponseEntity<MsgResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
         try {
-            userService.login(loginRequestDto);
+            JwtUser user = userService.login(loginRequestDto);
+            String accessToken = jwtUtil.createToken(user, ACCESS_TYPE);
+            String refreshToken = jwtUtil.createToken(user, REFRESH_TYPE);
+
+            return ResponseEntity.ok()
+                    .header(AUTHORIZATION_HEADER, accessToken)
+                    .header(REFRESH_AUTHORIZATION_HEADER, refreshToken)
+                    .body(new MsgResponseDto("로그인 성공", HttpStatus.OK.value()));
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new MsgResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
+            return ResponseEntity.badRequest()
+                    .body(new MsgResponseDto(e.getMessage(), HttpStatus.BAD_REQUEST.value()));
         }
 
-        response.setHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(loginRequestDto.getUsername(), UserRoleEnum.USER));
-
-        return ResponseEntity.ok().body(new MsgResponseDto("로그인 성공", HttpStatus.OK.value()));
     }
+
+    @DeleteMapping("/signout")
+    public ResponseEntity<?> signOut() {
+        userService.signOut();
+        return ResponseEntity.ok(new MessageDto("탈퇴했습니다."));
+    }
+
+    @GetMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestHeader(value = AUTHORIZATION_HEADER, required = false) String token) {
+        Optional<JwtUser> bearerToken = jwtUtil.getJwtUser(token, REFRESH_TYPE);
+        if (bearerToken.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageDto("토큰이 유효하지 않습니다."));
+
+        JwtUser user = bearerToken.get();
+
+        String accessToken = jwtUtil.createToken(user, ACCESS_TYPE);
+        String refreshToken = jwtUtil.createToken(user, REFRESH_TYPE);
+
+        return ResponseEntity.ok()
+                .header(AUTHORIZATION_HEADER, accessToken)
+                .header(REFRESH_AUTHORIZATION_HEADER, refreshToken)
+                .build();
+    }
+
+
 }
